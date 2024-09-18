@@ -1,13 +1,31 @@
-Nuevo: Combinaciones de teclas … Se actualizaron las combinaciones de teclas de Drive para que puedas navegar con las primeras letras.
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <title>Pago Curso</title>
 </head>
+<script>
+
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('84b47e81b86f0dd58c26', {
+      cluster: 'us2'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      alert(JSON.stringify(data));
+    });
+  </script>
 <body>
+    <p>
+        Try publishing an event to channel <code>my-channel</code>
+        with event name <code>my-event</code>.
+      </p>
+      
     <p><b>Partiendo de los ejemplos introductorios a JQuery Validation para pruebas y de acuerdo al CDU dado:</b></p>
     <ul>
         <li>Coloca tu nombre y apellido.</li>
