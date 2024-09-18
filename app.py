@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return "<p>Hola, Mundo!</p>"
+    return render_template("pago_curso.html")
+
 
 @app.route("/alumnos")
 def alumnos():
