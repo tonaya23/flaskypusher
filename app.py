@@ -24,10 +24,10 @@ def alumnosGuardar():
 @app.route("/evento")
 def evento():
     pusher_client = pusher.Pusher(
-        app_id="1714541",
-        key="cda1cc599395d699a2af",
-        secret="9e9c00fc36600060d9e2",
-        cluster="us2",
+        app_id = "1867154"
+        key = "84b47e81b86f0dd58c26"
+        secret = "a1408f8b96c7eba73b16"
+        cluster = "us2"
         ssl=True
     )
     
