@@ -10,11 +10,11 @@
 
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
-    <title>APP</title>
+    <title>App</title>
 </head>
 <body>
     <div class="container">
-      <table class="table table-sm table-bordered">
+      <table class="table table-sm">
         <thead>
           <tr>
             <th>Temperatura</th>
@@ -32,11 +32,12 @@
         window.addEventListener("load", function (event) {
             function buscar() {
                 $.get("/buscar", function (respuesta) {
-                    console.log(respuesta)
+                    // console.log(respuesta)
 
                     $("#tbodyTemperaturaHumedad").html("")
 
                     for (var x in respuesta) {
+                        var temperaturaHumedad = respuesta[x]
                         $("#tbodyTemperaturaHumedad").append(`<tr>
                             <td>${temperaturaHumedad[1]}</td>
                             <td>${temperaturaHumedad[2]}</td>
@@ -45,6 +46,8 @@
                     }
                 })
             }
+
+            buscar()
 
             // Enable pusher logging - don't include this in production
             Pusher.logToConsole = true

@@ -36,18 +36,32 @@ def alumnosGuardar():
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 @app.route("/buscar")
-def buscar()
+def buscar():
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
     cursor.execute("SELECT * FROM sensor_log")
-    
-    registros = mycursor.fetchall()
+
+    registros = cursor.fetchall()
+    con.close()
 
     return registros
 
 @app.route("/registrar", methods=["GET"])
 def registrar():
+    args = request.args
+
+    if not con.is_connected():
+        con.reconnect()
+    cursor = mydb.cursor()
+
+    sql = "INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora) VALUES (%s, %s, %s)"
+    val = (args["temperatura"], args["humedad"], datetime.datetime.now(pytz.timezone("America/Matamoros")))
+    cursor.execute(sql, val)
+    
+    con.commit()
+    con.close()
+
     pusher_client = pusher.Pusher(
         app_id = "1867154"
         key = "84b47e81b86f0dd58c26"
