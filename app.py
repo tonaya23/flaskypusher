@@ -23,6 +23,7 @@ def index():
     con.close()
     return render_template("app.html")
 
+# de aqui
 @app.route("/alumnos")
 def alumnos():
     con.close()
@@ -34,6 +35,7 @@ def alumnosGuardar():
     matricula      = request.form["txtMatriculaFA"]
     nombreapellido = request.form["txtNombreApellidoFA"]
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
+# a aca no se ocupa
 
 @app.route("/buscar")
 def buscar():
