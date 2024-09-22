@@ -10,11 +10,47 @@
 
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <title>Cursos Pagos</title>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        h1 {
+            margin-top: 20px;
+            text-align: center;
+            color: #343a40;
+        }
+        .container {
+            margin-top: 30px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            margin-top: 20px;
+        }
+        th {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .btn-refresh {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Cursos Pagos</h1>
     <div class="container">
-        <table class="table table-striped" id="cursosTable">
+        <div class="btn-refresh">
+            <button class="btn btn-primary" onclick="cargarDatosExistentes()">Actualizar Cursos</button>
+        </div>
+        <table class="table table-hover" id="cursosTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -32,6 +68,7 @@
         // Función para cargar los datos existentes
         function cargarDatosExistentes() {
             $.get('/buscar', function(data) {
+                $('#cursosTable tbody').empty(); // Limpiar tabla antes de agregar nuevos datos
                 data.forEach(function(registro) {
                     agregarFila(registro[0], registro[1], registro[2]);
                 });
