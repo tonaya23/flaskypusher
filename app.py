@@ -32,7 +32,7 @@ def buscar():
         con.reconnect()
     cursor = con.cursor(dictionary=True)
     cursor.execute("SELECT * FROM tst0_cursos_pagos ORDER BY Id_Curso_Pago DESC")
-Z    registros = cursor.fetchall()
+    registros = cursor.fetchall()
     con.close()
     return jsonify(registros)
 
