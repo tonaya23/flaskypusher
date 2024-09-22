@@ -1,14 +1,10 @@
-from flask import Flask
-
-from flask import render_template
-from flask import request
-
+from flask import Flask, render_template, request
 import pusher
-
 import mysql.connector
 import datetime
 import pytz
 
+# Database connection
 con = mysql.connector.connect(
   host="185.232.14.52",
   database="u760464709_tst_sep",
@@ -23,42 +19,22 @@ def index():
     con.close()
     return render_template("app.html")
 
-# de aqui
-@app.route("/alumnos")
-def alumnos():
+@app.route("/cursos")
+def cursos():
     con.close()
-    return render_template("alumnos.html")
+    return render_template("cursos.html")
 
-@app.route("/alumnos/guardar", methods=["POST"])
-def alumnosGuardar():
-    con.close()
-    matricula      = request.form["txtMatriculaFA"]
-    nombreapellido = request.form["txtNombreApellidoFA"]
-    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
-# a aca no se ocupa
-
-@app.route("/buscar")
-def buscar():
+@app.route("/cursos/guardar", methods=["POST"])
+def cursosGuardar():
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
-    cursor.execute("SELECT * FROM sensor_log")
 
-    registros = cursor.fetchall()
-    con.close()
+    telefono = request.form["txtTelefono"]
+    archivo = request.form["txtArchivo"]
 
-    return registros
-
-@app.route("/registrar", methods=["GET"])
-def registrar():
-    args = request.args
-
-    if not con.is_connected():
-        con.reconnect()
-    cursor = mydb.cursor()
-
-    sql = "INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora) VALUES (%s, %s, %s)"
-    val = (args["temperatura"], args["humedad"], datetime.datetime.now(pytz.timezone("America/Matamoros")))
+    sql = "INSERT INTO tst0_cursos_pagos (Telefono, Archivo) VALUES (%s, %s)"
+    val = (telefono, archivo)
     cursor.execute(sql, val)
     
     con.commit()
@@ -72,4 +48,24 @@ def registrar():
         ssl=True
     )
 
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", request.args)
+    pusher_client.trigger("canalCursosPagos", "nuevoCursoPago", {
+        "telefono": telefono,
+        "archivo": archivo
+    })
+
+    return f"Curso guardado: Teléfono {telefono}, Archivo {archivo}"
+
+@app.route("/buscar")
+def buscar():
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM tst0_cursos_pagos")
+
+    registros = cursor.fetchall()
+    con.close()
+
+    return registros
+
+if __name__ == "__main__":
+    app.run(debug=True)
