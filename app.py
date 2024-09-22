@@ -3,6 +3,7 @@ import pusher
 import mysql.connector
 import datetime
 import pytz
+from flask import jsonify
 
 # Database connection
 con = mysql.connector.connect(
@@ -29,7 +30,7 @@ def buscar():
     registros = cursor.fetchall()
     con.close()
 
-    return registros
+    return jsonify(registros)
 
 @app.route("/registrar", methods=["GET"])
 def registrar():
@@ -43,6 +44,9 @@ def registrar():
     val = (args.get("telefono"), args.get("archivo"))
     cursor.execute(sql, val)
     
+    # Obtener el ID del registro recién insertado
+    new_id = cursor.lastrowid
+    
     con.commit()
     con.close()
 
@@ -55,11 +59,9 @@ def registrar():
     )
 
     pusher_client.trigger("canalCursosPagos", "nuevoCursoPago", {
+        "id": new_id,
         "telefono": args.get("telefono"),
         "archivo": args.get("archivo")
     })
 
-    return f"Registro insertado: Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return f"Registro insertado: ID {new_id}, Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
