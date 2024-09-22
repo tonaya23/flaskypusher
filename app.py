@@ -19,22 +19,28 @@ def index():
     con.close()
     return render_template("app.html")
 
-@app.route("/cursos")
-def cursos():
-    con.close()
-    return render_template("cursos.html")
+@app.route("/buscar")
+def buscar():
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM tst0_cursos_pagos")
 
-@app.route("/cursos/guardar", methods=["POST"])
-def cursosGuardar():
+    registros = cursor.fetchall()
+    con.close()
+
+    return registros
+
+@app.route("/registrar", methods=["GET"])
+def registrar():
+    args = request.args
+
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
 
-    telefono = request.form["txtTelefono"]
-    archivo = request.form["txtArchivo"]
-
     sql = "INSERT INTO tst0_cursos_pagos (Telefono, Archivo) VALUES (%s, %s)"
-    val = (telefono, archivo)
+    val = (args.get("telefono"), args.get("archivo"))
     cursor.execute(sql, val)
     
     con.commit()
@@ -49,23 +55,11 @@ def cursosGuardar():
     )
 
     pusher_client.trigger("canalCursosPagos", "nuevoCursoPago", {
-        "telefono": telefono,
-        "archivo": archivo
+        "telefono": args.get("telefono"),
+        "archivo": args.get("archivo")
     })
 
-    return f"Curso guardado: Teléfono {telefono}, Archivo {archivo}"
-
-@app.route("/buscar")
-def buscar():
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor()
-    cursor.execute("SELECT * FROM tst0_cursos_pagos")
-
-    registros = cursor.fetchall()
-    con.close()
-
-    return registros
+    return f"Registro insertado: Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
 
 if __name__ == "__main__":
     app.run(debug=True)
