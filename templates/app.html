@@ -47,9 +47,6 @@
 <body>
     <h1>Cursos Pagos</h1>
     <div class="container">
-        <div class="btn-refresh">
-            <button class="btn btn-primary" onclick="cargarDatosExistentes()">Actualizar Cursos</button>
-        </div>
         <table class="table table-hover" id="cursosTable">
             <thead>
                 <tr>
@@ -68,7 +65,7 @@
         // Función para cargar los datos existentes
         function cargarDatosExistentes() {
             $.get('/buscar', function(data) {
-                $('#cursosTable tbody').empty(); // Limpiar tabla antes de agregar nuevos datos
+                $('#cursosTable tbody').empty(); // Limpiar la tabla antes de cargar nuevos datos
                 data.forEach(function(registro) {
                     agregarFila(registro[0], registro[1], registro[2]);
                 });
