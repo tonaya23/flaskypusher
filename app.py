@@ -32,7 +32,7 @@ def buscar():
         con.reconnect()
     cursor = con.cursor(dictionary=True)
     cursor.execute("SELECT * FROM tst0_cursos_pagos ORDER BY Id_Curso_Pago DESC")
-    registros = cursor.fetchall()
+Z    registros = cursor.fetchall()
     con.close()
     return jsonify(registros)
 
@@ -60,9 +60,7 @@ def registrar():
         "archivo": args.get("archivo")
     })
 
-    return jsonify({"message": "Registro insertado correctamente", "id": new_id})
+    return f"Registro insertado: ID {new_id}, Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-    return f"Registro insertado: ID {new_id}, Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
