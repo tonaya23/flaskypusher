@@ -67,5 +67,3 @@ def registrar():
         return f"Registro exitoso. ID: {id_curso_pago}, Teléfono: {telefono}, Archivo: {archivo}"
     else:
         return "Error: Se requieren los parámetros 'telefono' y 'archivo'", 400
-
-    pusher_client.trigger("canalRegistrosCursoPago", "registroCursoPago", request.args)
