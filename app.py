@@ -37,7 +37,7 @@ def registrar():
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
-    sql = "INSERT INTO curso_pago (Telefono, Archivo) VALUES (%s, %s)"
+    sql = "INSERT INTO tst0_cursos_pagos (Telefono, Archivo) VALUES (%s, %s)"
     val = (args["telefono"], args["archivo"])
     cursor.execute(sql, val)
     
