@@ -1,102 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    <title>Cursos Pagos</title>
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        h1 {
-            margin-top: 20px;
-            text-align: center;
-            color: #343a40;
-        }
-        .container {
-            margin-top: 30px;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            margin-top: 20px;
-        }
-        th {
-            background-color: #007bff;
-            color: #ffffff;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .btn-refresh {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-        }
-    </style>
+    <title>Registro de Cursos Pagos</title>
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="mb-4">Cursos Pagos</h1>
-        <table class="table table-striped" id="cursosTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Teléfono</th>
-                    <th>Archivo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aquí se agregarán las filas dinámicamente -->
-            </tbody>
-        </table>
-    </div>
+    <h1>Registro de Cursos Pagos</h1>
+    
+    <form id="registroForm">
+        <label for="telefono">Teléfono:</label>
+        <input type="number" id="telefono" name="telefono" required>
+        
+        <label for="archivo">Archivo:</label>
+        <input type="text" id="archivo" name="archivo" required>
+        
+        <button type="submit">Registrar</button>
+    </form>
+
+    <h2>Registros</h2>
+    <table id="registrosTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Teléfono</th>
+                <th>Archivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los registros se insertarán aquí dinámicamente -->
+        </tbody>
+    </table>
 
     <script>
-        // Función para cargar los datos existentes
-        function cargarDatosExistentes() {
-            $.get('/buscar', function(data) {
-                $('#cursosTable tbody').empty();
-                data.forEach(function(registro) {
-                    agregarFila(registro.Id_Curso_Pago, registro.Telefono, registro.Archivo);
-                });
-            });
-        }
-
-        // Función para agregar una fila a la tabla
-        function agregarFila(id, telefono, archivo) {
-            $('#cursosTable tbody').append(`
-                <tr>
-                    <td>${id}</td>
-                    <td>${telefono}</td>
-                    <td>${archivo}</td>
-                </tr>
-            `);
-        }
-
-        // Cargar datos existentes al iniciar la página
-        $(document).ready(function() {
-            cargarDatosExistentes();
-        });
-
-        // Configurar Pusher
+        // Configuración de Pusher
         var pusher = new Pusher('84b47e81b86f0dd58c26', {
             cluster: 'us2'
         });
 
-        var channel = pusher.subscribe('canalCursosPagos');
-        channel.bind('nuevoCursoPago', function(data) {
-            console.log('Nuevo curso recibido:', data);
-            agregarFila(data.id, data.telefono, data.archivo);
+        var channel = pusher.subscribe('canal_cursos_pagos');
+        channel.bind('nuevo_curso_pago', function(data) {
+            addRowToTable(data);
+        });
+
+        // Función para agregar una fila a la tabla
+        function addRowToTable(data) {
+            $('#registrosTable tbody').append(`
+                <tr>
+                    <td>${data.id || 'N/A'}</td>
+                    <td>${data.telefono}</td>
+                    <td>${data.archivo}</td>
+                </tr>
+            `);
+        }
+
+        // Manejar el envío del formulario
+        $('#registroForm').submit(function(e) {
+            e.preventDefault();
+            $.post('/registrar', $(this).serialize(), function(response) {
+                alert('Registro exitoso');
+                $('#registroForm')[0].reset();
+            });
+        });
+
+        // Cargar registros existentes al cargar la página
+        $.get('/buscar', function(data) {
+            data.forEach(addRowToTable);
         });
     </script>
 </body>
