@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pusher
 import mysql.connector
-import datetime
-import pytz
-from flask import jsonify
+
+# Crear la aplicación Flask
+app = Flask(__name__)
 
 # Configuración de la conexión a la base de datos
 con = mysql.connector.connect(
@@ -60,7 +60,7 @@ def registrar():
         "archivo": args.get("archivo")
     })
 
-    return f"Registro insertado: ID {new_id}, Teléfono {args.get('telefono')}, Archivo {args.get('archivo')}"
+    return jsonify({"message": "Registro insertado correctamente", "id": new_id})
 
 if __name__ == "__main__":
     app.run(debug=True)
