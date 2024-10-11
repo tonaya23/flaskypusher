@@ -3,69 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-
-    <title>Cursos angel orozco</title>
+    <title>CRUD de Cursos Pagos</title>
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-      <table class="table table-sm table-bordered">
-        <thead>
-          <tr>
-            <th>ID Curso</th>
-            <th>Teléfono</th>
-            <th>Archivo</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyCursoPago"></tbody>
-      </table>
-    </div>
+    <h1>CRUD de Cursos Pagos</h1>
+    
+    <h2>Registrar nuevo curso pago</h2>
+    <form id="registroForm">
+        <input type="text" id="telefono" placeholder="Teléfono" required>
+        <input type="text" id="archivo" placeholder="Archivo" required>
+        <button type="submit">Registrar</button>
+    </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <h2>Lista de Cursos Pagos</h2>
+    <table id="cursosTable">
+        <thead>
+            <tr>
+                <th>ID Curso</th>
+                <th>Teléfono</th>
+                <th>Archivo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script>
-        window.addEventListener("load", function (event) {
-            function buscar() {
-                $.get("/buscar", function (respuesta) {
-                    console.log(respuesta)
+        // Configuración de Pusher
+        const pusher = new Pusher('84b47e81b86f0dd58c26', {
+            cluster: 'us2'
+        });
+        const channel = pusher.subscribe('canalRegistrosCursoPago');
 
-                    $("#tbodyCursoPago").html("")
-
-                    for (var x in respuesta) {
-                        $("#tbodyCursoPago").append(`<tr>
-                            <td>${respuesta[x][0]}</td>
-                            <td>${respuesta[x][1]}</td>
-                            <td>${respuesta[x][2]}</td>
-                        </tr>`)
-                    }
-                })
+        // Funciones CRUD
+        async function cargarCursos() {
+            try {
+                const response = await axios.get('/buscar');
+                const tbody = document.querySelector('#cursosTable tbody');
+                tbody.innerHTML = '';
+                response.data.forEach(curso => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${curso.Id_Curso_Pago}</td>
+                            <td>${curso.Telefono}</td>
+                            <td>${curso.Archivo}</td>
+                            <td>
+                                <button onclick="editarCurso(${curso.Id_Curso_Pago}, '${curso.Telefono}', '${curso.Archivo}')">Editar</button>
+                                <button onclick="eliminarCurso(${curso.Id_Curso_Pago})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error al cargar cursos:', error);
             }
+        }
 
-            // Enable pusher logging - don't include this in production
-            Pusher.logToConsole = true
-            
-            var pusher = new Pusher("84b47e81b86f0dd58c26", {
-                cluster: "us2"
-            })
+        async function registrarCurso(event) {
+            event.preventDefault();
+            const telefono = document.getElementById('telefono').value;
+            const archivo = document.getElementById('archivo').value;
+            try {
+                await axios.post('/registrar', { telefono, archivo });
+                document.getElementById('registroForm').reset();
+            } catch (error) {
+                console.error('Error al registrar curso:', error);
+            }
+        }
 
-            var channel = pusher.subscribe("canalRegistrosCursoPago");
+        async function editarCurso(id, telefono, archivo) {
+            const nuevoTelefono = prompt('Nuevo teléfono:', telefono);
+            const nuevoArchivo = prompt('Nuevo archivo:', archivo);
+            if (nuevoTelefono && nuevoArchivo) {
+                try {
+                    await axios.put(`/actualizar/${id}`, { telefono: nuevoTelefono, archivo: nuevoArchivo });
+                } catch (error) {
+                    console.error('Error al actualizar curso:', error);
+                }
+            }
+        }
 
-            channel.bind("registroCursoPago", function (cursoPago) {
-                $("#tbodyCursoPago").prepend(`<tr>
-                    <td>${cursoPago.Id_Curso_Pago}</td>
-                    <td>${cursoPago.Telefono}</td>
-                    <td>${cursoPago.Archivo}</td>
-                </tr>`)
-            })
+        async function eliminarCurso(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este curso?')) {
+                try {
+                    await axios.delete(`/eliminar/${id}`);
+                } catch (error) {
+                    console.error('Error al eliminar curso:', error);
+                }
+            }
+        }
 
-            // Llamar a la función buscar al cargar la página
-            buscar();
-        })
-    </script>    
+        // Event listeners
+        document.getElementById('registroForm').addEventListener('submit', registrarCurso);
+
+        // Pusher event handlers
+        channel.bind('registroCursoPago', function(data) {
+            cargarCursos();
+        });
+
+        channel.bind('actualizacionCursoPago', function(data) {
+            cargarCursos();
+        });
+
+        channel.bind('eliminacionCursoPago', function(data) {
+            cargarCursos();
+        });
+
+        // Cargar cursos al iniciar
+        cargarCursos();
+    </script>
 </body>
 </html>
